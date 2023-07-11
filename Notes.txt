@@ -1,11 +1,8 @@
-Just use past 30 years
-Freeport, Vernalis
-Volume over 90th each year, take mean
-
-Plot guage locations on map
-geopandas
-
-Start in Oregon
-
-one 90th percentile over 30 years, mean annually
-million acre feet and kilometers^3
+Services available from NWIS include:
+- instantaneous values (iv)
+- daily values (dv)
+- statistics (stat)
+- site info (site)
+- discharge peaks (peaks)
+- discharge measurements (measurements)
+* water quality samples (qwdata)
