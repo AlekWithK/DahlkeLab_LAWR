@@ -1,0 +1,8 @@
+Services available from NWIS include:
+- instantaneous values (iv)
+- daily values (dv)
+- statistics (stat)
+- site info (site)
+- discharge peaks (peaks)
+- discharge measurements (measurements)
+* water quality samples (qwdata)
