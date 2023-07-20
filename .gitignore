@@ -1,6 +1,8 @@
 # Data sets
-.csv
-.txt
+*.csv
+*.txt
+
+spreadsheets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
