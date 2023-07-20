@@ -8,17 +8,9 @@ Services available from NWIS include:
 * water quality samples (qwdata)
 
 Questions:
--Water year for the 1970-2014 date range given?
--Paper mentions having data from 1909 for SRB, I only have from 1948
--What information should I be looking to plot once this has been expanded to more guages
--How do I avoid multi-counting once this has been expanded to more guages
+
 
 TODO:
--Check non-post impairment (2.11km^3 srb, 1.8 km^3 sjtb )
--Check # of HMF years using hydrological year
--Add 3 month/6 month window from paper (calculation periods 2.4)
--Look into .reasample()
--Make water year calculation flexible
 -Where is hydrologic year per region decided/tabled
 -Consider data presentation options
 
