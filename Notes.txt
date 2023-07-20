@@ -6,3 +6,13 @@ Services available from NWIS include:
 - discharge peaks (peaks)
 - discharge measurements (measurements)
 * water quality samples (qwdata)
+
+Questions:
+
+
+TODO:
+-Where is hydrologic year per region decided/tabled
+-Consider data presentation options
+
+Plotting:
+-
