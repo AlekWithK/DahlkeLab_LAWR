@@ -1,30 +1,9 @@
 import pandas as pd
+from dataretrieval import nwis
 
-hmf_series = pd.read_csv('spreadsheets/hmf_series.csv')
-
-def calc_intra_annual(hmf_series: pd.Series, hydro_year: str):
-    """Calculates the number of HMF events per hydrological year (consecutive days count as one event)"""
-    
-    # Offsetting dates to make calculations easier (currently HARDCODED)
-    date_series = pd.to_datetime(hmf_series['datetime'])        
-    date_series = date_series + pd.DateOffset(months=-9)
-    
-    df = pd.DataFrame(columns=['Year'])
-    
-    for i in range(len(date_series)):
-        if i == 0:   
-            df = pd.concat([df, pd.DataFrame({'Year': date_series.iloc[i].year}, index=[i])], ignore_index=True, axis=0)                          
-        else:
-            if (date_series.iloc[i] - date_series.iloc[i - 1]).days > 1:
-                df = pd.concat([df, pd.DataFrame({'Year': date_series.iloc[i].year}, index=[i])], ignore_index=True, axis=0)
-    
-    df = df.groupby('Year').size().reset_index(name='hmf_events')
-    print(df['hmf_events'].sum() / 28)
-    print(df)
-    return
-            
-
-calc_intra_annual(hmf_series, 'AS-OCT')
+df = nwis.get_record(sites=['11447650', '11303500'], service='dv', parameterCD='00060', start='1900-10-01', end='2020-09-30')
+df.reset_index()
+print(df)
 
 
 '''for i in range(len(date_series)):
