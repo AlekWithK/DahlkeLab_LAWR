@@ -20,3 +20,20 @@ print(df)
             
 '''for i in range(len(date_series)):
     if (date_series.iloc[i] - curr_year)'''
+    
+    
+'''zip_path = '../shapefile_temp/'
+    temp_path = '../extract_temp/'
+    folder = 'Shape'
+    dest = '/US_HUC4_SF'
+    prefix = 'NHD_H_'
+    files_to_extract = ['Shape/WBDHU4.dbf', 'Shape/WBDHU4.prj', 'Shape/WBDHU4.shp', 'Shape/WBDHU4.shx']
+
+    for file in os.listdir(zip_path):
+        print(file)
+        region = re.search(r'\d{4}', file).group() + '_'
+        path = os.path.join(zip_path, file)
+        
+        with zipfile.ZipFile(path, 'r') as zip_file:
+            for file in files_to_extract:
+                zip_file.extract(file, temp_path)'''
