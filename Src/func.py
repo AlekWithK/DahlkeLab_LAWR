@@ -66,7 +66,8 @@ def filter_hmf(df: pd.DataFrame, threshold: float):
 
 def convert_hmf(df: pd.DataFrame, threshold: float):
     """Converts flow values from ft^3/s to ft^3/day and returns the difference in flow above the threshold"""
-    return (df['00060_Mean'] - threshold) * SEC_PER_DAY
+    df['00060_Mean'] = (df['00060_Mean'] - threshold) * SEC_PER_DAY
+    return df
 
 def monthly_hmf(df: pd.DataFrame, data_range: int, quantile: float):
     """Returns the average HMF value per month over the analyzed data period"""
