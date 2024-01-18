@@ -6,7 +6,9 @@ import warnings
 import calendar
 import pymannkendall as mk
 
+
 from datetime import datetime
+from itertools import chain
 
 #--------------------------#
 #-------# CONSTANTS #------#
@@ -144,16 +146,33 @@ def three_six_range(df: pd.DataFrame, three_start: int, three_end: int, six_star
     three_month_mask = (df['datetime'].dt.month >= three_start) | (df['datetime'].dt.month <= three_end)
     return df[six_month_mask], df[three_month_mask]
 
-def calc_duration(df: pd.DataFrame):
+# OLD DURATION METHOD -- Calcs average number of days per year that HMF occurs
+'''def calc_duration(df: pd.DataFrame):
     """Returns the total number of HMF days over the dataframes time period"""
     df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'])
     df.set_index('datetime', inplace=True)  
     df_results = df.resample(HYDRO_YEAR).agg({'00060_Mean': ['count']})
     df_results.columns = ['Count']
-    return df_results['Count'].sum()
+    return df_results['Count'].sum()'''
+    
+def calc_duration(df: pd.Series, hmf_years: int):
+    """Calculates the average duration of HMF events per year
+       Also returns a zero-deflated dataframe for use in the duration MK test"""
+    df = df.reset_index()
+    df['datetime'] = df['datetime'] + pd.DateOffset(months=-9)
+    df['date_diff'] = df['datetime'].diff()
+    df['consecutive'] = (df['date_diff'] > pd.Timedelta(days=1)).cumsum()
+    df = df.groupby([df['datetime'].dt.year, df['consecutive']]).size().groupby(level=0).mean()
+    
+    # Insert missing years with 0 for MK test
+    years = pd.Series(index=pd.RangeIndex(start=df.index.min(), stop=df.index.max() + 1))
+    df = df.reindex(years.index, fill_value=0)
+    
+    return df.sum() / hmf_years, df
 
 def calc_intra_annual(df: pd.Series, hmf_years: int):
-    """Calculates the number of HMF events per hydrological year (consecutive days count as one event)""" 
+    """Calculates the number of HMF events per hydrological year (consecutive days count as one event). 
+       Also returns a zero-deflated dataframe for use in the intra-annual MK test""" 
     df = df.reset_index()   
     # Offsetting dates to make calculations easier (currently HARDCODED)
     date_series = pd.to_datetime(df['datetime'])        
@@ -168,8 +187,13 @@ def calc_intra_annual(df: pd.Series, hmf_years: int):
             if (date_series.iloc[i] - date_series.iloc[i - 1]).days > 1:
                 df = pd.concat([df, pd.DataFrame({'Year': date_series.iloc[i].year}, index=[i])], ignore_index=True, axis=0)
     
+    # Group and sum years, and insert missing years with 0 for MK test
     df = df.groupby('Year').size().reset_index(name='hmf_events')
-    return df['hmf_events'].sum() / hmf_years
+    years = pd.DataFrame({'Year': range(df['Year'].min(), df['Year'].max() + 1)})
+    df = pd.merge(years, df, how='left', on='Year')
+    df['hmf_events'].fillna(0, inplace=True)
+    
+    return df['hmf_events'].sum() / hmf_years, df
 
 def calc_oneday_peaks(df: pd.DataFrame):
     """Calculates the number of one-day peaks per hydrological year"""    
@@ -234,25 +258,70 @@ def gages_2_filtering(df: pd.DataFrame):
     df['HCDN_2009'] = df['site_no'].isin(df_g2['STAID'])  
     return df
 
-def save_data(df: pd.DataFrame, aq_name: str):
+def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame, aq_name: str):
     """Splits the resulting 'aquifer_sites' dataframe into individual frames and saves them as CSV's into Prelim_Data"""
     
-    df_list = [group for _, group in df.groupby('dataset_ID')]
+    #TODO: Add duplicate and dataset_ID dropping
+    #TODO: Remove this once site_analysis() is updated to return a list of dataframes
+    dataframes = [df_site_metrics, df_mk_magnitude, df_mk_duration, df_mk_intra_annual]
+    sheet_names = ['site_metrics', 'mk_magnitude', 'mk_duration', 'mk_intra_annual']
+    step = len(QUANTILE_LIST) * len(DATA_RANGE_LIST)
     
-    for df in df_list:
-        # Don't need the dataset_ID once grouped
-        df = df.drop('dataset_ID', axis=1)
-        # Drop duplicates now that sites are divided by dataset to account for the occasional site that is listed in mulitple states
-        df = df.drop_duplicates(subset=['site_no'])
-        try:
-            dataset = f'{aq_name}_{int(df["analyze_range"].iloc[0])}_{int(df["quantile"].iloc[0] * 100)}.csv'
-            df = df.reset_index(drop=True)
-            df.to_csv(f'Prelim_Data/{dataset}')
-        except Exception as e:
-            print(e)    
+    # Creating lists of each of the 4 (2 date range x 2 quantile) dataframes based on ID     
+    df_master_list = []
+    # 0 = site_metrics, 1 = magnitude, 2 = duration, 3 = intra_annual
+    for df in dataframes:
+        df_list = [group for _, group in df.groupby('dataset_ID')]
+        for df_l in df_list:
+            #df_l = df_l.drop('dataset_ID', axis=1)
+            df_l = df_l.reset_index(drop=True)
+            df_master_list.append(df_l)
+            
+    # Reordering df_master_list so that dataframes are grouped by spreadsheet they're a member of
+    order_key = [i + j for j in range(step) for i in range(0, len(df_master_list), step)]
+    df_master_list = [df_master_list[i] for i in order_key]        
+    
+    # Step through the master list, adding the first 4 dataframes to the first spreadsheet, the second four to the second, and so on        
+    for i, df in enumerate(df_master_list):
+        if i // step == 0: # First 4 dataframes
+            path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[0]}_{int(QUANTILE_LIST[0] * 100)}.xlsx'
+            if os.path.exists(path):               
+                with pd.ExcelWriter(path, mode='a') as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)                  
+            else:
+                with pd.ExcelWriter(path) as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)
+                                        
+        elif i // step == 1: # 5-8
+            path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[0]}_{int(QUANTILE_LIST[1] * 100)}.xlsx'
+            if os.path.exists(path):               
+                with pd.ExcelWriter(path, mode='a') as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)                  
+            else:
+                with pd.ExcelWriter(path) as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)  
+                    
+        elif i // step == 2: # 9-12
+            path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[1]}_{int(QUANTILE_LIST[0] * 100)}.xlsx'
+            if os.path.exists(path):               
+                with pd.ExcelWriter(path, mode='a') as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)                  
+            else:
+                with pd.ExcelWriter(path) as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)  
+                    
+        else: # 13-16
+            path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[1]}_{int(QUANTILE_LIST[1] * 100)}.xlsx'
+            if os.path.exists(path):               
+                with pd.ExcelWriter(path, mode='a') as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)                  
+            else:
+                with pd.ExcelWriter(path) as writer:
+                    df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)    
+ 
     return 
 
-def single_site_report(df_single_site: pd.DataFrame):
+def single_site_report(df_single_site: pd.DataFrame, mk_data: pd.DataFrame):
     """Produces console report for single_site_data()"""
     print(f'Site No: {df_single_site["site_no"]}')
     print(f'Analyzed Range: {df_single_site["analyze_range"].to_string(index=False)}')
@@ -267,5 +336,5 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'Center of Mass: {df_single_site["CoM"].to_string(index=False)}')
     print(f'6 Month HMF in km^3/year: {df_single_site["six_mo_hmf"].to_string(index=False)}')
     print(f'3 Month HMF in km^3/year: {df_single_site["three_mo_hmf"].to_string(index=False)}')
-    print(f'MK Trend: {df_single_site["mk_trend"].to_string(index=False)}')
-    print(f'MK Slope: {df_single_site["mk_slope"].to_string(index=False)}')
+    print(f'MK Trend: {mk_data["mk_trend"].to_string(index=False)}')
+    print(f'MK Slope: {mk_data["mk_slope"].to_string(index=False)}')
