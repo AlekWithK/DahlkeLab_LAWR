@@ -1,6 +1,7 @@
 # Data sets
 *.csv
 *.txt
+*.xlsx
 
 spreadsheets/
 ShapeFiles/
