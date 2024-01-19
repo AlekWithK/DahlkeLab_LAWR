@@ -273,7 +273,8 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
     for df in dataframes:
         df_list = [group for _, group in df.groupby('dataset_ID')]
         for df_l in df_list:
-            #df_l = df_l.drop('dataset_ID', axis=1)
+            df_l = df_l.drop('dataset_ID', axis=1)
+            df_l = df_l.drop_duplicates(subset=['site_no'])
             df_l = df_l.reset_index(drop=True)
             df_master_list.append(df_l)
             
