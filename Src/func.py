@@ -166,9 +166,10 @@ def calc_duration(df: pd.Series, hmf_years: int):
     
     # Insert missing years with 0 for MK test
     years = pd.Series(index=pd.RangeIndex(start=df.index.min(), stop=df.index.max() + 1))
-    df = df.reindex(years.index, fill_value=0)
+    series_defl = df.copy()
+    series_cont = df.reindex(years.index, fill_value=0)
     
-    return df.sum() / hmf_years, df
+    return df.sum() / hmf_years, series_defl, series_cont
 
 def calc_intra_annual(df: pd.Series, hmf_years: int):
     """Calculates the number of HMF events per hydrological year (consecutive days count as one event). 
@@ -189,11 +190,13 @@ def calc_intra_annual(df: pd.Series, hmf_years: int):
     
     # Group and sum years, and insert missing years with 0 for MK test
     df = df.groupby('Year').size().reset_index(name='hmf_events')
+    series_defl = df.copy()
     years = pd.DataFrame({'Year': range(df['Year'].min(), df['Year'].max() + 1)})
     df = pd.merge(years, df, how='left', on='Year')
     df['hmf_events'].fillna(0, inplace=True)
+    series_cont = df.copy()
     
-    return df['hmf_events'].sum() / hmf_years, df
+    return df['hmf_events'].sum() / hmf_years, series_defl, series_cont
 
 def calc_oneday_peaks(df: pd.DataFrame):
     """Calculates the number of one-day peaks per hydrological year"""    
@@ -234,9 +237,13 @@ def convert_cubic_ft_hm(value: float):
     """Convert ft^3 to km^3"""
     return value * CUBIC_FT_KM_FACTOR
 
-def mann_kendall(data: pd.Series, alpha: float):
-    """Perform a Mann-Kendall Trend test"""
-    return mk.original_test(data, alpha=alpha)
+def mann_kendall(defl_data: pd.Series, cont_data: pd.Series, alpha: float):
+    """Perform a Mann-Kendall Trend test on a continuous series of data and a zero-deflated series"""
+    data = mk.original_test(defl_data, alpha=alpha) + mk.original_test(cont_data, alpha=alpha)
+    mk_trend = pd.DataFrame([data], columns=['trend_zd', 'h_zd', 'p_zd', 'z_zd', 'tau_zd', 's_zd', 'var_s_zd', 'slope_zd', 'int_zd', 
+                                           'trend', 'h', 'p', 'z', 'tau', 's', 'var_s', 'slope', 'int'])  
+
+    return mk_trend
 
 def create_state_uri(state: str, param: str):
     """Creates the URL on a per state from which a list of site_id's to be processed and analzyed is scraped"""
@@ -322,7 +329,7 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
  
     return 
 
-def single_site_report(df_single_site: pd.DataFrame, mk_data: pd.DataFrame):
+def single_site_report(df_single_site: pd.DataFrame):
     """Produces console report for single_site_data()"""
     print(f'Site No: {df_single_site["site_no"]}')
     print(f'Analyzed Range: {df_single_site["analyze_range"].to_string(index=False)}')
@@ -337,5 +344,3 @@ def single_site_report(df_single_site: pd.DataFrame, mk_data: pd.DataFrame):
     print(f'Center of Mass: {df_single_site["CoM"].to_string(index=False)}')
     print(f'6 Month HMF in km^3/year: {df_single_site["six_mo_hmf"].to_string(index=False)}')
     print(f'3 Month HMF in km^3/year: {df_single_site["three_mo_hmf"].to_string(index=False)}')
-    print(f'MK Trend: {mk_data["mk_trend"].to_string(index=False)}')
-    print(f'MK Slope: {mk_data["mk_slope"].to_string(index=False)}')
