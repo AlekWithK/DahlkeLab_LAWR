@@ -155,21 +155,34 @@ def three_six_range(df: pd.DataFrame, three_start: int, three_end: int, six_star
     df_results.columns = ['Count']
     return df_results['Count'].sum()'''
     
-def calc_duration(df: pd.Series, hmf_years: int):
+def calc_duration(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year
        Also returns a zero-deflated dataframe for use in the duration MK test"""
-    df = df.reset_index()
-    df['datetime'] = df['datetime'] + pd.DateOffset(months=-9)
-    df['date_diff'] = df['datetime'].diff()
-    df['consecutive'] = (df['date_diff'] > pd.Timedelta(days=1)).cumsum()
-    df = df.groupby([df['datetime'].dt.year, df['consecutive']]).size().groupby(level=0).mean()
+    df_d = df.reset_index()
+    df_d['datetime'] = df_d['datetime'] + pd.DateOffset(months=-9)
+
+    df_d['00060_Mean'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
+
+    years = list(range(df_d["datetime"].dt.year.min(), df_d["datetime"].dt.year.max() + 1))
+    df_results = pd.DataFrame({'year': years, 'total_days': [0] * len(years), 'total_events': [0] * len(years)})
+    event = False
+    for _, row in df_d.iterrows():    
+        if row["00060_Mean"] == 1:
+            if not event: # If event hasn't already been recorded
+                df_results.loc[df_results['year'] == row['datetime'].year, 'total_events'] += 1    
+                        
+            df_results.loc[df_results['year'] == row['datetime'].year, 'total_days'] += 1
+            event = True
+        else:
+            event = False
+            
+    series_cont = df_results['total_events']
+    series_defl = df_results['total_events'][df_results['total_events'] > 0]
+            
+    df_results['duration'] = df_results['total_days'] / df_results['total_events']
+    df_results['duration'].fillna(0, inplace=True)
     
-    # Insert missing years with 0 for MK test
-    years = pd.Series(index=pd.RangeIndex(start=df.index.min(), stop=df.index.max() + 1))
-    series_defl = df.copy()
-    series_cont = df.reindex(years.index, fill_value=0)
-    
-    return df.sum() / hmf_years, series_defl, series_cont
+    return df_results['duration'].sum() / hmf_years, series_defl, series_cont
 
 def calc_intra_annual(df: pd.Series, hmf_years: int):
     """Calculates the number of HMF events per hydrological year (consecutive days count as one event). 
