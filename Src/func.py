@@ -146,12 +146,13 @@ def three_six_range(df: pd.DataFrame, three_start: int, three_end: int, six_star
     three_month_mask = (df['datetime'].dt.month >= three_start) | (df['datetime'].dt.month <= three_end)
     return df[six_month_mask], df[three_month_mask]
 
-def calc_duration(df: pd.DataFrame, hmf_years: int):
-    """Calculates the average duration of HMF events per year
-       Also returns a zero-deflated dataframe for use in the duration MK test"""
+def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
+    """Calculates the average duration of HMF events per year and the intra-annual frequency of events
+       per year. Also returns a results dataframe for use in the duration and intra-annual MK tests"""
     df_d = df.reset_index()
     df_d['datetime'] = df_d['datetime'] + pd.DateOffset(months=-9)
 
+    # Create a binary column for HMF events
     df_d['00060_Mean'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
 
     # Initialize results dataframe with required years 
@@ -170,20 +171,20 @@ def calc_duration(df: pd.DataFrame, hmf_years: int):
             event = True
         else:
             event = False
-              
-            
+                      
     df_results['duration'] = df_results['total_days'] / df_results['total_events']
     df_results['duration'].fillna(0, inplace=True)
-    
-    series_cont = df_results['duration']
-    series_defl = df_results['duration'][df_results['duration'] > 0]
     
     # Old definition of duration == 51.30 for full record SRB
     #df_results['total_days'].sum() / hmf_years
     
-    return df_results['duration'].sum() / hmf_years, series_defl, series_cont
+    avg_duration = df_results['duration'].sum() / hmf_years
+    intra_annual = df_results['total_events'].sum() / hmf_years
+    
+    return avg_duration, intra_annual, df_results
 
-def calc_intra_annual(df: pd.Series, hmf_years: int):
+# Old intra-annual calculation
+'''def calc_intra_annual(df: pd.Series, hmf_years: int):
     """Calculates the number of HMF events per hydrological year (consecutive days count as one event). 
        Also returns a zero-deflated dataframe for use in the intra-annual MK test""" 
     df = df.reset_index()   
@@ -208,7 +209,7 @@ def calc_intra_annual(df: pd.Series, hmf_years: int):
     df['hmf_events'].fillna(0, inplace=True)
     series_cont = df.copy()
     
-    return df['hmf_events'].sum() / hmf_years, series_defl, series_cont
+    return df['hmf_events'].sum() / hmf_years, series_defl, series_cont'''
 
 def calc_oneday_peaks(df: pd.DataFrame):
     """Calculates the number of one-day peaks per hydrological year"""    
