@@ -146,15 +146,6 @@ def three_six_range(df: pd.DataFrame, three_start: int, three_end: int, six_star
     three_month_mask = (df['datetime'].dt.month >= three_start) | (df['datetime'].dt.month <= three_end)
     return df[six_month_mask], df[three_month_mask]
 
-# OLD DURATION METHOD -- Calcs average number of days per year that HMF occurs
-'''def calc_duration(df: pd.DataFrame):
-    """Returns the total number of HMF days over the dataframes time period"""
-    df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'])
-    df.set_index('datetime', inplace=True)  
-    df_results = df.resample(HYDRO_YEAR).agg({'00060_Mean': ['count']})
-    df_results.columns = ['Count']
-    return df_results['Count'].sum()'''
-    
 def calc_duration(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year
        Also returns a zero-deflated dataframe for use in the duration MK test"""
@@ -163,8 +154,12 @@ def calc_duration(df: pd.DataFrame, hmf_years: int):
 
     df_d['00060_Mean'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
 
+    # Initialize results dataframe with required years 
     years = list(range(df_d["datetime"].dt.year.min(), df_d["datetime"].dt.year.max() + 1))
     df_results = pd.DataFrame({'year': years, 'total_days': [0] * len(years), 'total_events': [0] * len(years)})
+    
+    # Check each day for an HMF event, if one occurs add it to total days, 
+    # and if it's the first day of an event add it to total events
     event = False
     for _, row in df_d.iterrows():    
         if row["00060_Mean"] == 1:
@@ -175,12 +170,16 @@ def calc_duration(df: pd.DataFrame, hmf_years: int):
             event = True
         else:
             event = False
-            
-    series_cont = df_results['total_events']
-    series_defl = df_results['total_events'][df_results['total_events'] > 0]
+              
             
     df_results['duration'] = df_results['total_days'] / df_results['total_events']
     df_results['duration'].fillna(0, inplace=True)
+    
+    series_cont = df_results['duration']
+    series_defl = df_results['duration'][df_results['duration'] > 0]
+    
+    # Old definition of duration == 51.30 for full record SRB
+    #df_results['total_days'].sum() / hmf_years
     
     return df_results['duration'].sum() / hmf_years, series_defl, series_cont
 
