@@ -61,10 +61,10 @@ def calc_threshold(df: pd.DataFrame, value: float):
 
 def filter_hmf(df: pd.DataFrame, threshold: float):
     """Returns a dataframe with only flow values above a given threshold present, and a second with non-HMF years zero deflated"""
-    zero_defalted_hmf = df.copy()
-    hmf_series = df[df['00060_Mean'] > threshold]    
-    zero_defalted_hmf['00060_Mean'] = zero_defalted_hmf['00060_Mean'].apply(lambda x: x if x >= threshold else 0) 
-    return hmf_series, zero_defalted_hmf
+    hmf_series_cont = df.copy()
+    hmf_series_defl = df[df['00060_Mean'] > threshold]    
+    hmf_series_cont['00060_Mean'] = hmf_series_cont['00060_Mean'].apply(lambda x: x if x >= threshold else 0) 
+    return hmf_series_defl, hmf_series_cont
 
 def convert_hmf(df: pd.DataFrame, threshold: float):
     """Converts flow values from ft^3/s to ft^3/day and returns the difference in flow above the threshold"""
@@ -175,13 +175,12 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     df_results['duration'] = df_results['total_days'] / df_results['total_events']
     df_results['duration'].fillna(0, inplace=True)
     
-    # Old definition of duration == 51.30 for full record SRB
-    #df_results['total_days'].sum() / hmf_years
-    
-    avg_duration = df_results['duration'].sum() / hmf_years
+    # Annual, Event, and Intra-annual calculations
+    annual_duration = df_results['total_days'].sum() / hmf_years    
+    event_duration = df_results['duration'].sum() / hmf_years
     intra_annual = df_results['total_events'].sum() / hmf_years
     
-    return avg_duration, intra_annual, df_results
+    return event_duration, annual_duration, intra_annual, df_results
 
 # Old intra-annual calculation
 '''def calc_intra_annual(df: pd.Series, hmf_years: int):
@@ -216,35 +215,21 @@ def calc_oneday_peaks(df: pd.DataFrame):
        
     return
 
-def calc_center_of_mass(df: pd.DataFrame):
+def calc_timing(df: pd.DataFrame):
     """Calculates the average numerical day per hydrologic year that HMF reaches the center of mass threshold"""
     df = df.reset_index()
-    df['datetime'] = pd.to_datetime(df['datetime'])
+    
     df['datetime'] = df['datetime'] + pd.DateOffset(months=-9)
     
-    # Group data by year
     df['year'] = df['datetime'].dt.year
-    df_grouped = df.groupby('year')
-    
-    # Cumulative sum of the data and halfway point calculation
-    df['sum'] = df_grouped['00060_Mean'].cumsum()
-    df['half'] = df_grouped['00060_Mean'].transform('sum') / 2
-    
-    # Filter days up to halfway point and aggregate them
-    df = df[df['sum'] >= df['half']]    
-    com_series = df.groupby('year')['datetime'].agg('mean')
-    
-    # Calculate the average day of the hydrologic year that COM occurs    
-    # Suppresses obnoxious timezone warning every time this function is called. As far as I can tell we do not care about
-    # timezone information in this study, and so dropping tz information will not affect the data
-    with warnings.catch_warnings():
-        warnings.simplefilter('ignore')
-        start = com_series.dt.to_period('Y').dt.to_timestamp()
-        
-    com_series = (com_series.dt.tz_localize(None) - start).dt.days
-    center_of_mass = sum(com_series) / len(com_series)
+    df['day'] = df['datetime'].dt.dayofyear
+    df['cumsum'] = df.groupby('year')['00060_Mean'].cumsum()
+    df['t_sum'] = df.groupby('year')['00060_Mean'].transform('sum')
 
-    return np.ceil(center_of_mass)
+    com_series = df[df['cumsum'] >= df['t_sum'] / 2].groupby('year')['day'].first()
+    timing = com_series.mean()    
+
+    return timing
     
 def convert_cubic_ft_hm(value: float):
     """Convert ft^3 to km^3"""
@@ -281,7 +266,6 @@ def gages_2_filtering(df: pd.DataFrame):
 def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame, aq_name: str):
     """Splits the resulting 'aquifer_sites' dataframe into individual frames and saves them as CSV's into Prelim_Data"""
     
-    #TODO: Add duplicate and dataset_ID dropping
     #TODO: Remove this once site_analysis() is updated to return a list of dataframes
     dataframes = [df_site_metrics, df_mk_magnitude, df_mk_duration, df_mk_intra_annual]
     sheet_names = ['site_metrics', 'mk_magnitude', 'mk_duration', 'mk_intra_annual']
@@ -350,10 +334,11 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'Valid: {df_single_site["valid"].to_string(index=False)}')
     print(f'90%: {df_single_site["threshold"].to_string(index=False)}')
     print(f'HMF Years: {df_single_site["hmf_years"].to_string(index=False)}')
-    print(f'Average Duration: {df_single_site["duration"].to_string(index=False)}')
+    print(f'Annual Duration: {df_single_site["annual_duration"].to_string(index=False)}')
+    print(f'Event Duration: {df_single_site["event_duration"].to_string(index=False)}')
     print(f'Inter-annual Frequency: {df_single_site["inter_annual"].to_string(index=False)}%')
     print(f'Intra-annual Frequency: {df_single_site["intra_annual"].to_string(index=False)}')
     print(f'Total HMF in km^3/year: {df_single_site["annual_hmf"].to_string(index=False)}')
-    print(f'Center of Mass: {df_single_site["CoM"].to_string(index=False)}')
+    print(f'Center of Mass: {df_single_site["timing"].to_string(index=False)}')
     print(f'6 Month HMF in km^3/year: {df_single_site["six_mo_hmf"].to_string(index=False)}')
     print(f'3 Month HMF in km^3/year: {df_single_site["three_mo_hmf"].to_string(index=False)}')
