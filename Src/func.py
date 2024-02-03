@@ -153,21 +153,22 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     df_d['datetime'] = df_d['datetime'] + pd.DateOffset(months=-9)
 
     # Create a binary column for HMF events
-    df_d['00060_Mean'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
+    df_d['flow_bool'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
 
     # Initialize results dataframe with required years 
     years = list(range(df_d["datetime"].dt.year.min(), df_d["datetime"].dt.year.max() + 1))
-    df_results = pd.DataFrame({'year': years, 'total_days': [0] * len(years), 'total_events': [0] * len(years)})
+    df_results = pd.DataFrame({'year': years, 'total_days': [0] * len(years), 'total_events': [0] * len(years), 'total_hmf': [0] * len(years)})
     
     # Check each day for an HMF event, if one occurs add it to total days, 
     # and if it's the first day of an event add it to total events
     event = False
     for _, row in df_d.iterrows():    
-        if row["00060_Mean"] == 1:
+        if row["flow_bool"] == 1:
             if not event: # If event hasn't already been recorded
                 df_results.loc[df_results['year'] == row['datetime'].year, 'total_events'] += 1    
                         
             df_results.loc[df_results['year'] == row['datetime'].year, 'total_days'] += 1
+            df_results.loc[df_results['year'] == row['datetime'].year, 'total_hmf'] += row['00060_Mean']
             event = True
         else:
             event = False
@@ -175,12 +176,16 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     df_results['duration'] = df_results['total_days'] / df_results['total_events']
     df_results['duration'].fillna(0, inplace=True)
     
+    df_results['total_hmf'] = df_results['total_hmf'] * CUBIC_FT_KM_FACTOR
+    df_results['event_hmf'] = df_results['total_hmf'] / df_results['total_events']
+    
     # Annual, Event, and Intra-annual calculations
     annual_duration = df_results['total_days'].sum() / hmf_years    
     event_duration = df_results['duration'].sum() / hmf_years
     intra_annual = df_results['total_events'].sum() / hmf_years
+    event_hmf = df_results['event_hmf'].sum() / hmf_years
     
-    return event_duration, annual_duration, intra_annual, df_results
+    return event_duration, annual_duration, intra_annual, event_hmf, df_results
 
 # Old intra-annual calculation
 '''def calc_intra_annual(df: pd.Series, hmf_years: int):
@@ -336,6 +341,7 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'HMF Years: {df_single_site["hmf_years"].to_string(index=False)}')
     print(f'Annual Duration: {df_single_site["annual_duration"].to_string(index=False)}')
     print(f'Event Duration: {df_single_site["event_duration"].to_string(index=False)}')
+    print(f'Event HMF: {df_single_site["event_hmf"].to_string(index=False)}')
     print(f'Inter-annual Frequency: {df_single_site["inter_annual"].to_string(index=False)}%')
     print(f'Intra-annual Frequency: {df_single_site["intra_annual"].to_string(index=False)}')
     print(f'Total HMF in km^3/year: {df_single_site["annual_hmf"].to_string(index=False)}')
