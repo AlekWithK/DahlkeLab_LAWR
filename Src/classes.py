@@ -16,8 +16,9 @@ SJTB_Guage = StreamGauge('11303500', 'SAN JOAQUIN R NR VERNALIS CA', '1923-10-01
         
 # Aquifer class used for aquifer analysis
 class Aquifer():
-    def __init__(self, name, wb_dir, wb_shapefiles, aq_shapefile, states):
-        self.name = name # Aquifer name    
+    def __init__(self, name, datasets_dir, wb_dir, wb_shapefiles, aq_shapefile, states):
+        self.name = name # Aquifer name
+        self.datasets_dir = datasets_dir    
         self.wb_dir = wb_dir # Path to aquifer watershed boundary shapefiles
         self.wb_shapefiles = wb_shapefiles # Name of watershed boundary shapefiles to loop through
         self.aq_shapefile = aq_shapefile # Path to aquifer shapefile
@@ -27,6 +28,7 @@ class Aquifer():
 # Upper Clairbrone alluvial aquifer in south-central US    
 upper_clairborne_aquifer = Aquifer(
     name = 'Upper_Clairborne',
+    datasets_dir = "Prelim_Data/Upper_Clairborne",
     wb_dir = 'ShapeFiles/Aquifers/Upper_Clairborne_MS/HUC4',
     wb_shapefiles = 'WBDHU4.shp',
     aq_shapefile = 'ShapeFiles/Aquifers/Upper_Clairborne_MS/sir2008-5098_UCAQ_extent.shp',
@@ -36,6 +38,7 @@ upper_clairborne_aquifer = Aquifer(
 # Central Valley aquifer in California's Central Valley
 central_valley_aquifer = Aquifer(
     name = 'Central_Valley',
+    datasets_dir = "Prelim_Data/Central_Valley",
     wb_dir = 'ShapeFiles/Aquifers/Central_Valley/HUC4',
     wb_shapefiles = 'WBDHU4.shp',
     aq_shapefile = 'ShapeFiles/Aquifers/Central_Valley/Alluvial_Bnd.shp',

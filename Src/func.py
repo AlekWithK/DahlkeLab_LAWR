@@ -5,6 +5,7 @@ import numpy as np
 import warnings
 import calendar
 import pymannkendall as mk
+import matplotlib.pyplot as plt
 
 
 from datetime import datetime
@@ -51,7 +52,7 @@ def validate(df: pd.DataFrame, start: datetime, end: datetime):
     """Returns the % amount of data missing from the analyzed range"""
     t_delta = pd.to_datetime(end) - pd.to_datetime(start)
     days = t_delta.days
-    missing = 1.0 - (len(df) / days)           
+    missing = max(1.0 - (len(df) / days), 0)           
     return missing
 
 def calc_threshold(df: pd.DataFrame, value: float):
@@ -331,12 +332,23 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
  
     return 
 
+def save_plot_as_image(img_path: str, overwrite: bool=False):
+    """Saves a generated plot as an image to the specified img_path"""
+    
+    if os.path.exists(img_path) and overwrite:
+        plt.savefig(img_path)
+    elif not os.path.exists(img_path):
+        plt.savefig(img_path)
+        
+    return
+
 def single_site_report(df_single_site: pd.DataFrame):
     """Produces console report for single_site_data()"""
     print(f'Site No: {df_single_site["site_no"]}')
     print(f'Analyzed Range: {df_single_site["analyze_range"].to_string(index=False)}')
     print(f'Quantile: {df_single_site["quantile"].to_string(index=False)}')
     print(f'Valid: {df_single_site["valid"].to_string(index=False)}')
+    print(f'% Missing: {df_single_site["missing"].to_string(index=False)}')
     print(f'90%: {df_single_site["threshold"].to_string(index=False)}')
     print(f'HMF Years: {df_single_site["hmf_years"].to_string(index=False)}')
     print(f'Annual Duration: {df_single_site["annual_duration"].to_string(index=False)}')
