@@ -7,7 +7,6 @@ import calendar
 import pymannkendall as mk
 import matplotlib.pyplot as plt
 
-
 from datetime import datetime
 from itertools import chain
 
@@ -44,9 +43,9 @@ SITES_URI = f'https://waterdata.usgs.gov/{STATE_CODE}/nwis/current?index_pmcode_
 SEC_PER_DAY = 86400
 CUBIC_FT_KM_FACTOR = 0.0000000000283168466
 
-#--------------------------#
-#-------# FUNCTIONS #------#
-#--------------------------#
+#--------------------------------------#
+#-------# CALCULATION FUNCTIONS #------#
+#--------------------------------------#
 
 def validate(df: pd.DataFrame, start: datetime, end: datetime):
     """Returns the % amount of data missing from the analyzed range"""
@@ -360,3 +359,7 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'Center of Mass: {df_single_site["timing"].to_string(index=False)}')
     print(f'6 Month HMF in km^3/year: {df_single_site["six_mo_hmf"].to_string(index=False)}')
     print(f'3 Month HMF in km^3/year: {df_single_site["three_mo_hmf"].to_string(index=False)}')
+    
+#-----------------------------------#
+#-------# PLOTTING FUNCTIONS #------#
+#-----------------------------------#
