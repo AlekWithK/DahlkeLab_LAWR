@@ -44,3 +44,22 @@ central_valley_aquifer = Aquifer(
     aq_shapefile = 'ShapeFiles/Aquifers/Central_Valley/Alluvial_Bnd.shp',
     states = ['CA', 'OR']
 )  
+
+# Lake Michigan Basin in Michigan
+michigan_basin_aquifer = Aquifer(
+    name = 'Michigan_Basin',
+    datasets_dir = "Prelim_Data/Michigan_Basin",
+    wb_dir = 'ShapeFiles/Aquifers/Michigan_Basin/HUC4',
+    wb_shapefiles = 'WBDHU4.shp',
+    aq_shapefile = 'ShapeFiles/Aquifers/Michigan_Basin/sir2009-5060_unit_alt_grid.shp',
+    states = ['MI']
+)
+
+columbia_plateau_aquifer = Aquifer(
+    name = 'Columbia_Plateau',
+    datasets_dir = "Prelim_Data/Columbia_Plateau",
+    wb_dir = 'ShapeFiles/Aquifers/Columbia_Plateau/HUC4',
+    wb_shapefiles = 'WBDHU4.shp',
+    aq_shapefile = 'ShapeFiles/Aquifers/Columbia_Plateau/CRB_extent4xconnections.shp',
+    states = ['WA', 'OR', 'ID', 'MT', 'NV']
+)
