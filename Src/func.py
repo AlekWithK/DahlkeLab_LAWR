@@ -6,6 +6,8 @@ import warnings
 import calendar
 import pymannkendall as mk
 import matplotlib.pyplot as plt
+import geopandas as gpd
+import contextily as cx
 
 from datetime import datetime
 from itertools import chain
@@ -68,7 +70,7 @@ def filter_hmf(df: pd.DataFrame, threshold: float):
 
 def convert_hmf(df: pd.DataFrame, threshold: float):
     """Converts flow values from ft^3/s to ft^3/day and returns the difference in flow above the threshold"""
-    df['00060_Mean'] = (df['00060_Mean'] - threshold) * SEC_PER_DAY
+    df['00060_Mean'] = df['00060_Mean'].apply(lambda x: (x - threshold) * SEC_PER_DAY if x > 0 else 0)
     return df
 
 def monthly_hmf(df: pd.DataFrame, data_range: int, quantile: float):
@@ -157,29 +159,33 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
 
     # Initialize results dataframe with required years 
     years = list(range(df_d["datetime"].dt.year.min(), df_d["datetime"].dt.year.max() + 1))
-    df_results = pd.DataFrame({'year': years, 'total_days': [0] * len(years), 'total_events': [0] * len(years), 'total_hmf': [0] * len(years)})
-    
-    # Check each day for an HMF event, if one occurs add it to total days, 
-    # and if it's the first day of an event add it to total events
-    event = False
-    for _, row in df_d.iterrows():    
-        if row["flow_bool"] == 1:
-            if not event: # If event hasn't already been recorded
-                df_results.loc[df_results['year'] == row['datetime'].year, 'total_events'] += 1    
-                        
-            df_results.loc[df_results['year'] == row['datetime'].year, 'total_days'] += 1
-            df_results.loc[df_results['year'] == row['datetime'].year, 'total_hmf'] += row['00060_Mean']
-            event = True
-        else:
-            event = False
-                      
+    df_results = pd.DataFrame()
+
+    # Average HMF/year calculation
+    df_results = df_d.groupby(df_d["datetime"].dt.year)["00060_Mean"].sum().reset_index()
+    df_results["00060_Mean"] = df_results["00060_Mean"] * CUBIC_FT_KM_FACTOR
+
+    # Total days per year calculation
+    df_results["total_days"] = df_d.groupby(df_d["datetime"].dt.year)["flow_bool"].sum().reset_index()["flow_bool"]
+
+    # Total events per year calculation
+    df_d['Year'] = df_d['datetime'].dt.year
+    df_d['Change'] = df_d['flow_bool'].diff()
+    series_continuous_sets = df_d[(df_d['Change'] == 1) & (df_d['flow_bool'] == 1)].groupby('Year').size()
+    series_continuous_sets = series_continuous_sets.reset_index()
+    series_continuous_sets.columns = ['Year', 'total_events']
+    df_results.rename(columns={'datetime': 'Year'}, inplace=True)
+    df_results = pd.merge(df_results, series_continuous_sets, on='Year', how='left')
+    df_results = df_results.fillna(0)
+
+    # Event HMF
+    df_results['event_hmf'] = df_results['00060_Mean'] / df_results['total_events']
+
+    # Event Duration
     df_results['duration'] = df_results['total_days'] / df_results['total_events']
-    df_results['duration'].fillna(0, inplace=True)
-    
-    df_results['total_hmf'] = df_results['total_hmf'] * CUBIC_FT_KM_FACTOR
-    df_results['event_hmf'] = df_results['total_hmf'] / df_results['total_events']
     
     # Annual, Event, and Intra-annual calculations
+    df_results = df_results.fillna(0)
     annual_duration = df_results['total_days'].sum() / hmf_years    
     event_duration = df_results['duration'].sum() / hmf_years
     intra_annual = df_results['total_events'].sum() / hmf_years
@@ -261,11 +267,9 @@ def filter_by_valid(df: pd.DataFrame):
 
 def gages_2_filtering(df: pd.DataFrame):
     """Adds a column to the site dataframe indicating presence in the HCDN-2009 Gages-II Network"""
-    path = 'GagesII/gagesII_sept30_2011_conterm.xlsx'
-    sheet = 'BasinID'
-    df_g2 = pd.read_excel(path, sheet_name=sheet)
-    df_g2 = df_g2[df_g2['HCDN-2009'] == 'yes']        
-    df['HCDN_2009'] = df['site_no'].isin(df_g2['STAID'])  
+    path = 'GagesII/g2_list.csv'
+    df_g2 = pd.read_csv(path)        
+    df['HCDN_2009'] = df['site_no'].isin(df_g2['STAID'].astype(str)) 
     return df
 
 def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame, aq_name: str):
@@ -328,8 +332,7 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
             else:
                 with pd.ExcelWriter(path) as writer:
                     df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)    
- 
-    return 
+
 
 def save_plot_as_image(img_path: str, overwrite: bool=False):
     """Saves a generated plot as an image to the specified img_path"""
@@ -339,7 +342,6 @@ def save_plot_as_image(img_path: str, overwrite: bool=False):
     elif not os.path.exists(img_path):
         plt.savefig(img_path)
         
-    return
 
 def single_site_report(df_single_site: pd.DataFrame):
     """Produces console report for single_site_data()"""
@@ -363,3 +365,21 @@ def single_site_report(df_single_site: pd.DataFrame):
 #-----------------------------------#
 #-------# PLOTTING FUNCTIONS #------#
 #-----------------------------------#
+
+def plot_lower_48(ax: plt.Axes, shapefile_path: str, crs: int=4269):
+    """Plots a simple basemap of the lower 48 with state boundaries"""
+    lower48 = gpd.read_file(shapefile_path)
+    
+    non_contiguous = ['AK', 'HI', 'PR', 'VI', 'GU', 'AS', 'MP']
+    for reg in non_contiguous:
+        lower48 = lower48[lower48['STUSPS'] != reg]
+        
+    lower48 = lower48.to_crs(epsg=crs)
+    lower48.plot(ax=ax, edgecolor='grey', facecolor='darkgrey', linewidth=0.75)  
+    
+def plot_basemap(ax: plt.Axes, crs: int=4269, source: cx.providers=cx.providers.OpenStreetMap.Mapnik, zoom: int=7):
+    """Plots a contexily basemap"""
+    ax.margins(0, tight=True)
+    ax.set_axis_off()
+    cx.add_basemap(ax, crs=crs, source=source, zoom=zoom)
+    
