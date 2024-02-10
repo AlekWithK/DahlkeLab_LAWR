@@ -95,9 +95,11 @@ def monthly_hmf(df: pd.DataFrame, data_range: int, quantile: float):
     df_grouped.rename(columns={'datetime': 'count'}, inplace=True) 
     df_grouped = df_grouped.reset_index()
     
-    # Temporary code for histogram dataset production
+    # Temporary code for monthly frequency dataset production
+    # Right now set to only produce the 30 year, 90th quantile dataset
+    '''
     if data_range == 30 and quantile == 0.9:
-        temp_path = 'C:/Users/alekh/Desktop/monthly_freq/monthly_hmf_frq.csv'
+        temp_path = 'Prelim_Data/monthly_hmf_frq.csv'
         df_temp = df_grouped.copy()
         if os.path.exists(temp_path):
             sheet_data = pd.read_csv(temp_path)
@@ -117,7 +119,8 @@ def monthly_hmf(df: pd.DataFrame, data_range: int, quantile: float):
             try:
                 df_grouped.to_csv(temp_path)
             except Exception as e:
-                print(e)   
+                print(e)
+    '''   
     
     # Calculate average hmf per month including 0's (see Methodology note)
     df_grouped['00060_Mean'] = df_grouped['00060_Mean'] / df_grouped['count']
