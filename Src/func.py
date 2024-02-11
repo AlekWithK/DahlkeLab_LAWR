@@ -8,6 +8,8 @@ import pymannkendall as mk
 import matplotlib.pyplot as plt
 import geopandas as gpd
 import contextily as cx
+from shapely.geometry import Point
+import matplotlib.colors as mcolors
 
 from datetime import datetime
 from itertools import chain
@@ -385,4 +387,22 @@ def plot_basemap(ax: plt.Axes, crs: int=4269, source: cx.providers=cx.providers.
     ax.margins(0, tight=True)
     ax.set_axis_off()
     cx.add_basemap(ax, crs=crs, source=source, zoom=zoom)
+    
+def convert_geometry(df: pd.DataFrame):
+    """Converts 'dec_lat/long_va' columns to geopandas dataframe"""
+    lat = df['dec_lat_va']
+    long = df['dec_long_va']
+    geometry = geometry = [Point(xy) for xy in zip(long, lat)]
+    geo_df = gpd.GeoDataFrame(geometry=geometry)
+    return geo_df
+
+def scale_colorbar(df: pd.DataFrame, metric: str):
+    """Set colorbar scale format based on min/max of metric being plotted"""
+    vmin = df[metric].min()
+    vmax = df[metric].max()        
+    norm = mcolors.Normalize(vmin, vmax)
+    cmap = 'plasma'
+    mappable = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    mappable.set_array(df[metric])    
+    return cmap, mappable
     
