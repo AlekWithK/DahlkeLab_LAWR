@@ -376,12 +376,7 @@ def single_site_report(df_single_site: pd.DataFrame):
 
 def plot_lower_48(ax: plt.Axes, shapefile_path: str, crs: int=4269):
     """Plots a simple basemap of the lower 48 with state boundaries"""
-    lower48 = gpd.read_file(shapefile_path)
-    
-    non_contiguous = ['AK', 'HI', 'PR', 'VI', 'GU', 'AS', 'MP']
-    for reg in non_contiguous:
-        lower48 = lower48[lower48['STUSPS'] != reg]
-        
+    lower48 = gpd.read_file(shapefile_path)        
     lower48 = lower48.to_crs(epsg=crs)
     lower48.plot(ax=ax, edgecolor='grey', facecolor='darkgrey', linewidth=0.75)  
     
