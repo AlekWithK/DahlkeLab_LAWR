@@ -50,6 +50,20 @@ CUBIC_FT_KM_FACTOR = 0.0000000000283168466
 # Excludes Alaska and Hawaii
 STATE_LIST = ['AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY']
 
+# Metric Units for plot labels
+# $\mathregular{km^3}$/year
+FLOW_METRIC_UNITS = {
+    'annual_hmf': 'Average HMF ($\mathregular{km^3}$/year)', 
+    'event_duration': 'Average Days per HMF Event', 
+    'annual_duration': 'Average HMF Days per Year', 
+    'event_hmf': 'Average HMF ($\mathregular{km^3}$/event)', 
+    'timing': 'Day of Hydrologic Year', 
+    'six_mo_hmf': 'Average HMF ($\mathregular{km^3}$/3 months)', 
+    'three_mo_hmf': 'Average HMF ($\mathregular{km^3}$/6 months)', 
+    'inter_annual': 'Annual Freqency of Events', 
+    'intra_annual': 'Average Events per Year'
+}
+
 #--------------------------------------#
 #-------# CALCULATION FUNCTIONS #------#
 #--------------------------------------#
@@ -377,7 +391,7 @@ def single_site_report(df_single_site: pd.DataFrame):
 def plot_lower_48(ax: plt.Axes, crs: int=4269):
     """Plots a simple basemap of the lower 48 with state boundaries"""
     lower48 = gpd.read_file('ShapeFiles/Lower48/lower48.shp')        
-    lower48 = lower48.to_crs(epsg=crs)
+    lower48 = lower48.to_crs(crs)
     lower48.plot(ax=ax, edgecolor='grey', facecolor='darkgrey', linewidth=0.75)  
     
 def plot_basemap(ax: plt.Axes, crs: int=4269, source: cx.providers=cx.providers.OpenStreetMap.Mapnik, zoom: int=7):
