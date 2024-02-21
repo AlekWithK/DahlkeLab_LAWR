@@ -374,9 +374,9 @@ def single_site_report(df_single_site: pd.DataFrame):
 #-------# PLOTTING FUNCTIONS #------#
 #-----------------------------------#
 
-def plot_lower_48(ax: plt.Axes, shapefile_path: str, crs: int=4269):
+def plot_lower_48(ax: plt.Axes, crs: int=4269):
     """Plots a simple basemap of the lower 48 with state boundaries"""
-    lower48 = gpd.read_file(shapefile_path)        
+    lower48 = gpd.read_file('ShapeFiles/Lower48/lower48.shp')        
     lower48 = lower48.to_crs(epsg=crs)
     lower48.plot(ax=ax, edgecolor='grey', facecolor='darkgrey', linewidth=0.75)  
     
@@ -405,9 +405,49 @@ def scale_colorbar(df: pd.DataFrame, metric: str):
     return cmap, mappable
 
 def plot_rateb_aquifers(ax, crs: int=4269, edgecolor: str='orange', facecolor: str='none', alpha: float=0.75, linewidth: float=1.00):
+    """Plots the aquifer outlines as used by Rateb et al. 2020"""
     rateb_aqs = gpd.read_file('ShapeFiles/Lower48/POWELL_AQs_2020.shp')
     rateb_aqs = rateb_aqs.to_crs(crs)
     rateb_aqs.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)
     
-    
-    
+def plot_huc2(ax, codes: list=[], crs: int=4269, edgecolor: str='royalblue', facecolor: str='cornflowerblue', alpha: float=0.30, linewidth: float=1.00):
+    """Plots HUC2 shapefiles either by a list of codes or all HUC2's if no list is provided"""
+    # If no list is provided, plot all HUC2's
+    if not codes:
+        for root, _, files in os.walk('ShapeFiles/HUC2/'):
+            if os.path.basename(root).startswith('WBD_'):
+                if 'WBDHU2.shp' in files:
+                    shapefile_path = os.path.join(root, 'WBDHU2.shp')
+                    shapefile = gpd.read_file(shapefile_path)
+                    shapefile = shapefile.to_crs(crs)
+                    shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)       
+    else:
+        for code in codes:
+            for root, _, files in os.walk('ShapeFiles/HUC2/'):
+                if os.path.basename(root) == f'WBD_{code}':
+                    if 'WBDHU2.shp' in files:
+                        shapefile_path = os.path.join(root, 'WBDHU2.shp')
+                        shapefile = gpd.read_file(shapefile_path)
+                        shapefile = shapefile.to_crs(crs)
+                        shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)
+                        
+def plot_huc4(ax, codes: list=[], crs: int=4269, edgecolor: str='royalblue', facecolor: str='cornflowerblue', alpha: float=0.30, linewidth: float=1.00):
+    """Plots HUC4 shapefiles either by a list of codes or all HUC2's if no list is provided"""
+    # If no list is provided, plot all HUC4's
+    if not codes:
+        for root, _, files in os.walk('ShapeFiles/HUC4/'):
+            if os.path.basename(root).startswith('NHD_H_'):
+                if 'WBDHU4.shp' in files:
+                    shapefile_path = os.path.join(root, 'WBDHU4.shp')
+                    shapefile = gpd.read_file(shapefile_path)
+                    shapefile = shapefile.to_crs(crs)
+                    shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)       
+    else:
+        for code in codes:
+            for root, _, files in os.walk('ShapeFiles/HUC4/'):
+                if os.path.basename(root) == f'NHD_H_{code}':
+                    if 'WBDHU4.shp' in files:
+                        shapefile_path = os.path.join(root, 'WBDHU4.shp')
+                        shapefile = gpd.read_file(shapefile_path)
+                        shapefile = shapefile.to_crs(crs)
+                        shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)
