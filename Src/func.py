@@ -403,4 +403,11 @@ def scale_colorbar(df: pd.DataFrame, metric: str):
     mappable = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     mappable.set_array(df[metric])    
     return cmap, mappable
+
+def plot_rateb_aquifers(ax, crs: int=4269, edgecolor: str='orange', facecolor: str='none', alpha: float=0.75, linewidth: float=1.00):
+    rateb_aqs = gpd.read_file('ShapeFiles/Lower48/POWELL_AQs_2020.shp')
+    rateb_aqs = rateb_aqs.to_crs(crs)
+    rateb_aqs.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)
+    
+    
     
