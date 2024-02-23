@@ -404,7 +404,7 @@ def convert_geometry(df: pd.DataFrame):
     """Converts 'dec_lat/long_va' columns to geopandas dataframe"""
     lat = df['dec_lat_va']
     long = df['dec_long_va']
-    geometry = geometry = [Point(xy) for xy in zip(long, lat)]
+    geometry = [Point(xy) for xy in zip(long, lat)]
     geo_df = gpd.GeoDataFrame(geometry=geometry)
     return geo_df
 
