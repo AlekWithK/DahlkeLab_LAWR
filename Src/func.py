@@ -178,7 +178,9 @@ def calc_inter_annual(df: pd.DataFrame, hmf_years: int):
     # this current method will still count it as a full year in delta, when we don't know if there was or was not flow in the missing portions. This potentially
     # skews the frequency by 1/30th or 1/50th and so may not be worth worrying about. Solutions would involve checking the first/last year for HMF and adjusting delta
     delta = ((df['datetime'].max() - df['datetime'].min()).days) / 365.25
-    return hmf_years / np.ceil(delta), delta
+    inter_annual = hmf_years / np.ceil(delta)
+    inter_annual = int(round(inter_annual, 2) * 100)
+    return inter_annual, int(np.ceil(delta))
 
 def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year and the intra-annual frequency of events
@@ -386,7 +388,7 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'Annual Duration: {df_single_site["annual_duration"].to_string(index=False)}')
     print(f'Event Duration: {df_single_site["event_duration"].to_string(index=False)}')
     print(f'Event HMF: {df_single_site["event_hmf"].to_string(index=False)}')
-    print(f'Inter-annual Frequency: {df_single_site["inter_annual"].to_string(index=False)}%')
+    print(f'Inter-annual Frequency: {df_single_site["inter_annual%"].to_string(index=False)}%')
     print(f'Intra-annual Frequency: {df_single_site["intra_annual"].to_string(index=False)}')
     print(f'Total HMF in km^3/year: {df_single_site["annual_hmf"].to_string(index=False)}')
     print(f'Center of Mass: {df_single_site["timing"].to_string(index=False)}')
