@@ -155,20 +155,30 @@ def monthly_hmf(df: pd.DataFrame, data_range: int, quantile: float):
     #df_grouped.to_csv('monthly_hmf.csv')
     return df_pivot
 
-def num_hmf_years(df: pd.DataFrame, offset: int):
-    """Returns the integer number of HMF years, using an offset to indicate the start of the Hydrologic Year (i.e. 10 = October)"""
-    df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'])
+def num_hmf_years(df: pd.DataFrame):
+    df_temp = df.copy()
+    """Returns the integer number of HMF years"""
+    '''df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'])
     df.set_index('datetime', inplace=True)    
-    df.loc[:, 'offsetdate'] = (df.index - pd.offsets.YearBegin(month=offset))    
-    return df['offsetdate'].dt.year.nunique()
+    df.loc[:, 'offsetdate'] = (df.index - pd.offsets.YearBegin(month=offset))'''    
+    df_temp['datetime'] = df_temp['datetime'] + pd.DateOffset(months=-9)     
+    return df_temp['datetime'].dt.year.nunique()
 
 def three_six_range(df: pd.DataFrame, three_start: int, three_end: int, six_start: int, six_end: int):
     """Returns two dataframes, one with a six month period, and one with a three month period, based on given start and end months for both"""
-    df = df.reset_index()
-    df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'])    
-    six_month_mask = (df['datetime'].dt.month >= six_start) | (df['datetime'].dt.month <= six_end)
-    three_month_mask = (df['datetime'].dt.month >= three_start) | (df['datetime'].dt.month <= three_end)
-    return df[six_month_mask], df[three_month_mask]
+    df_temp = df.reset_index()
+    df_temp.loc[:, 'datetime'] = pd.to_datetime(df_temp['datetime'])    
+    six_month_mask = (df_temp['datetime'].dt.month >= six_start) | (df_temp['datetime'].dt.month <= six_end)
+    three_month_mask = (df_temp['datetime'].dt.month >= three_start) | (df_temp['datetime'].dt.month <= three_end)
+    return df_temp[six_month_mask], df_temp[three_month_mask]
+
+def calc_inter_annual(df: pd.DataFrame, hmf_years: int):
+    """Returns the frequency with which years experience at least one HMF event as well as the analyzed range"""    
+    # TODO: Discuss w/KO on how we want to handle partial years. If a partial year at start/end has HMF, we can count it as a full year, however if it doesn't,
+    # this current method will still count it as a full year in delta, when we don't know if there was or was not flow in the missing portions. This potentially
+    # skews the frequency by 1/30th or 1/50th and so may not be worth worrying about. Solutions would involve checking the first/last year for HMF and adjusting delta
+    delta = ((df['datetime'].max() - df['datetime'].min()).days) / 365.25
+    return hmf_years / np.ceil(delta), delta
 
 def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year and the intra-annual frequency of events
@@ -252,16 +262,15 @@ def calc_timing(df: pd.DataFrame):
     """Calculates the average numerical day per hydrologic year that HMF reaches the center of mass threshold"""
     df = df.reset_index()
     
-    df['datetime'] = df['datetime'] + pd.DateOffset(months=-9)
-    
+    df['datetime'] = df['datetime'] + pd.DateOffset(months=-9)    
     df['year'] = df['datetime'].dt.year
     df['day'] = df['datetime'].dt.dayofyear
     df['cumsum'] = df.groupby('year')['00060_Mean'].cumsum()
     df['t_sum'] = df.groupby('year')['00060_Mean'].transform('sum')
 
     com_series = df[df['cumsum'] >= df['t_sum'] / 2].groupby('year')['day'].first()
-    timing = com_series.mean()    
-
+    timing = com_series.mean() 
+    
     return timing
     
 def convert_cubic_ft_hm(value: float):
