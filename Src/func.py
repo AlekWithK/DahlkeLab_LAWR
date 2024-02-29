@@ -11,7 +11,7 @@ import contextily as cx
 from shapely.geometry import Point
 import matplotlib.colors as mcolors
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 
 #--------------------------#
@@ -186,14 +186,11 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year and the intra-annual frequency of events
        per year. Also returns a results dataframe for use in the duration and intra-annual MK tests"""
     df_d = df.reset_index()
+    df_results = pd.DataFrame()
     df_d['datetime'] = df_d['datetime'] + pd.DateOffset(months=-9)
 
     # Create a binary column for HMF events
-    df_d['flow_bool'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)
-
-    # Initialize results dataframe with required years 
-    years = list(range(df_d["datetime"].dt.year.min(), df_d["datetime"].dt.year.max() + 1))
-    df_results = pd.DataFrame()
+    df_d['flow_bool'] = df_d['00060_Mean'].apply(lambda x: 1 if x > 0 else 0)    
 
     # Average HMF/year calculation
     df_results = df_d.groupby(df_d["datetime"].dt.year)["00060_Mean"].sum().reset_index()
@@ -203,8 +200,19 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     df_results["total_days"] = df_d.groupby(df_d["datetime"].dt.year)["flow_bool"].sum().reset_index()["flow_bool"]
 
     # Total events per year calculation
+    # Insert a day at the very beginning of the dataframe with flow_bool == 0 so that the first event is counted via diff()
+    first = df_d['datetime'].iloc[0] - timedelta(days=1)
+    insert = {'datetime': first, '00060_Mean': 0,  '00060_Mean_cd': None, 'site_no': None, 'flow_bool': 0}
+    df_d = pd.concat([pd.DataFrame(insert, index=[0]), df_d]).reset_index(drop=True)
+
+    # Total events per year calculation
     df_d['Year'] = df_d['datetime'].dt.year
     df_d['Change'] = df_d['flow_bool'].diff()
+    
+    # Set Change == 1 if the first day of the year has an event to account for events spanning the new year
+    year_start_mask = (df_d['datetime'].dt.month == 1) & (df_d['datetime'].dt.day == 1)
+    df_d.loc[year_start_mask & (df_d['flow_bool'] == 1), 'Change'] = 1
+    
     series_continuous_sets = df_d[(df_d['Change'] == 1) & (df_d['flow_bool'] == 1)].groupby('Year').size()
     series_continuous_sets = series_continuous_sets.reset_index()
     series_continuous_sets.columns = ['Year', 'total_events']
@@ -308,7 +316,6 @@ def gages_2_filtering(df: pd.DataFrame):
 def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame, aq_name: str):
     """Splits the resulting 'aquifer_sites' dataframe into individual frames and saves them as CSV's into Prelim_Data"""
     
-    #TODO: Remove this once site_analysis() is updated to return a list of dataframes
     dataframes = [df_site_metrics, df_mk_magnitude, df_mk_duration, df_mk_intra_annual]
     sheet_names = ['site_metrics', 'mk_magnitude', 'mk_duration', 'mk_intra_annual']
     step = len(QUANTILE_LIST) * len(DATA_RANGE_LIST)
