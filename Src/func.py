@@ -208,10 +208,14 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     # Total events per year calculation
     df_d['Year'] = df_d['datetime'].dt.year
     df_d['Change'] = df_d['flow_bool'].diff()
+    df_d['Year_Change'] = df_d['Year'].diff()
     
-    # Set Change == 1 if the first day of the year has an event to account for events spanning the new year
+    # Edgecase where flow carries over from previous year
+    df_d.loc[((df_d['Year_Change'] > 0) & (df_d['flow_bool'] == 1)), 'Change'] = 1
+    
+    '''# Set Change == 1 if the first day of the year has an event to account for events spanning the new year
     year_start_mask = (df_d['datetime'].dt.month == 1) & (df_d['datetime'].dt.day == 1)
-    df_d.loc[year_start_mask & (df_d['flow_bool'] == 1), 'Change'] = 1
+    df_d.loc[year_start_mask & (df_d['flow_bool'] == 1), 'Change'] = 1'''
     
     series_continuous_sets = df_d[(df_d['Change'] == 1) & (df_d['flow_bool'] == 1)].groupby('Year').size()
     series_continuous_sets = series_continuous_sets.reset_index()
