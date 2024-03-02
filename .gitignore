@@ -3,10 +3,13 @@
 *.txt
 #*.xlsx
 
+<<<<<<< HEAD
 # Master Shapefiles (too large)
 ShapeFiles/HUC2/_Master_HUC2/master_huc2.shp
 ShapeFiles/HUC4/_Master_HUC4/master_huc4.shp
 
+=======
+>>>>>>> d10cd151b9fbcfe5d5c11fa4fdb4c347fd2b3ee8
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
