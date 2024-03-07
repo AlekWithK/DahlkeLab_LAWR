@@ -64,6 +64,9 @@ FLOW_METRIC_UNITS = {
     'intra_annual': 'Average Events per Year'
 }
 
+# For use in pd.read_excel() to enforce leading 0's
+DATASET_DTYPES = {'site_no': str, 'huc2_code': str, 'huc4_code': str}
+
 #--------------------------------------#
 #-------# CALCULATION FUNCTIONS #------#
 #--------------------------------------#
@@ -179,7 +182,7 @@ def calc_inter_annual(df: pd.DataFrame, hmf_years: int):
     # skews the frequency by 1/30th or 1/50th and so may not be worth worrying about. Solutions would involve checking the first/last year for HMF and adjusting delta
     delta = ((df['datetime'].max() - df['datetime'].min()).days) / 365.25
     inter_annual = hmf_years / np.ceil(delta)
-    inter_annual = int(round(inter_annual, 2) * 100)
+    inter_annual = min(int(round(inter_annual, 2) * 100), 100)
     return inter_annual, int(np.ceil(delta))
 
 def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
@@ -393,7 +396,7 @@ def single_site_report(df_single_site: pd.DataFrame):
     print(f'Analyzed Range: {df_single_site["analyze_range"].to_string(index=False)}')
     print(f'Quantile: {df_single_site["quantile"].to_string(index=False)}')
     print(f'Valid: {df_single_site["valid"].to_string(index=False)}')
-    print(f'% Missing: {df_single_site["missing"].to_string(index=False)}')
+    print(f'% Missing: {df_single_site["missing_data%"].to_string(index=False)}')
     print(f'90%: {df_single_site["threshold"].to_string(index=False)}')
     print(f'HMF Years: {df_single_site["hmf_years"].to_string(index=False)}')
     print(f'Annual Duration: {df_single_site["annual_duration"].to_string(index=False)}')
