@@ -180,10 +180,12 @@ def calc_inter_annual(df: pd.DataFrame, hmf_years: int):
     # TODO: Discuss w/KO on how we want to handle partial years. If a partial year at start/end has HMF, we can count it as a full year, however if it doesn't,
     # this current method will still count it as a full year in delta, when we don't know if there was or was not flow in the missing portions. This potentially
     # skews the frequency by 1/30th or 1/50th and so may not be worth worrying about. Solutions would involve checking the first/last year for HMF and adjusting delta
-    delta = ((df['datetime'].max() - df['datetime'].min()).days) / 365.25
-    inter_annual = hmf_years / np.ceil(delta)
+    df_inter = df.reset_index()
+    df_inter['datetime'] = df_inter['datetime'] + pd.DateOffset(months=-9)
+    delta = df_inter['datetime'].dt.year.nunique()
+    inter_annual = hmf_years / delta
     inter_annual = min(int(round(inter_annual, 2) * 100), 100)
-    return inter_annual, int(np.ceil(delta))
+    return inter_annual, delta
 
 def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     """Calculates the average duration of HMF events per year and the intra-annual frequency of events
