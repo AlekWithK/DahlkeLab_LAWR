@@ -60,7 +60,7 @@ FLOW_METRIC_UNITS = {
     'timing': 'Day of Hydrologic Year', 
     'six_mo_hmf': 'Average HMF ($\mathregular{km^3}$/3 months)', 
     'three_mo_hmf': 'Average HMF ($\mathregular{km^3}$/6 months)', 
-    'inter_annual': 'Annual Freqency of Events', 
+    'inter_annual%': 'Annual Freqency of Events', 
     'intra_annual': 'Average Events per Year'
 }
 

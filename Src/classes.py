@@ -90,21 +90,21 @@ texas_gulf_coast_aquifer = Aquifer(
     name = 'Texas_Gulf_Coast',
     datasets_dir = "Prelim_Data/Texas_Gulf_Coast",
     huc2s = [],
-    huc4s = []
+    huc4s = ['1201', '1202', '1203', '1204', '1207', '1209', '1210', '1211', '1309', '1308', '1114']
 )
 
 upper_colorado_aquifer = Aquifer(
     name = 'Upper_Colorado',
     datasets_dir = "Prelim_Data/Upper_Colorado",
     huc2s = [],
-    huc4s = []
+    huc4s = ['1404', '1405', '1406', '1401', '1402', '1403', '1407', '1408']
 )
 
 pennsylvanian_aquifer = Aquifer(
     name = 'Pennsylvanian',
     datasets_dir = "Prelim_Data/Pennsylvanian",
     huc2s = [],
-    huc4s = []
+    huc4s = ['0411', '0501', '0502', '0503', '0504', '0505', '0205', '0509', '0507', '0510', '0513', '0601', '0602', '0603', '0316']
 )
 
 # List of all aquifers for easy iteration
