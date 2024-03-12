@@ -451,6 +451,7 @@ def plot_rateb_aquifers(ax, crs: int=4269, edgecolor: str='orange', facecolor: s
     
 def plot_huc2(ax, shapefile, codes: list=[], crs: int=4269, edgecolor: str='royalblue', facecolor: str='cornflowerblue', alpha: float=0.30, linewidth: float=1.00):
     """Plots HUC2 shapefiles either by a list of codes or all HUC2's if no list is provided"""
+    if codes == [-1]: return
     # If no list is provided, plot all HUC2's
     shapefile = shapefile.to_crs(crs)
     if not codes:        
@@ -461,6 +462,7 @@ def plot_huc2(ax, shapefile, codes: list=[], crs: int=4269, edgecolor: str='roya
                         
 def plot_huc4(ax, shapefile, codes: list=[], crs: int=4269, edgecolor: str='royalblue', facecolor: str='cornflowerblue', alpha: float=0.30, linewidth: float=1.00):
     """Plots HUC4 shapefiles either by a list of codes or all HUC2's if no list is provided"""
+    if codes == [-1]: return
     # If no list is provided, plot all HUC4's
     shapefile = shapefile.to_crs(crs)
     if not codes:        
