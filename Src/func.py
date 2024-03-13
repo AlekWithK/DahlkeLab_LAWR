@@ -53,14 +53,14 @@ STATE_LIST = ['AL', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'ID', 'IL', 
 # Metric Units for plot labels
 # $\mathregular{km^3}$/year
 FLOW_METRIC_UNITS = {
-    'annual_hmf': 'Average HMF ($\mathregular{km^3}$/year)', 
+    'annual_hmf': 'Annual HMF ($\mathregular{km^3}$)', 
     'event_duration': 'Average Days per HMF Event', 
     'annual_duration': 'Average HMF Days per Year', 
     'event_hmf': 'Average HMF ($\mathregular{km^3}$/event)', 
-    'timing': 'Day of Hydrologic Year', 
+    'timing': 'Timing (DOHY)', 
     'six_mo_hmf': 'Average HMF ($\mathregular{km^3}$/3 months)', 
     'three_mo_hmf': 'Average HMF ($\mathregular{km^3}$/6 months)', 
-    'inter_annual%': 'Annual Freqency of Events', 
+    'inter_annual%': 'Annual Freqency of Events (%)', 
     'intra_annual': 'Average Events per Year'
 }
 
@@ -415,11 +415,16 @@ def single_site_report(df_single_site: pd.DataFrame):
 #-------# PLOTTING FUNCTIONS #------#
 #-----------------------------------#
 
-def plot_lower_48(ax: plt.Axes, crs: int=4269):
+def plot_lower_48(ax: plt.Axes, crs: int=4269, facecolor: str='grey', edgecolor: str='darkgrey', linewidth: float=0.75):
     """Plots a simple basemap of the lower 48 with state boundaries"""
     lower48 = gpd.read_file('ShapeFiles/Lower48/lower48.shp')        
     lower48 = lower48.to_crs(crs)
-    lower48.plot(ax=ax, edgecolor='grey', facecolor='darkgrey', linewidth=0.75)  
+    lower48.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, linewidth=linewidth) 
+    
+def plot_stream_network(stream_network_shapefile, ax: plt.Axes, crs: int=4269, color: str='blue', linewidth: float=0.75, alpha: float=0.30):
+    """Plots a nationwide stream network"""
+    stream_network = stream_network_shapefile.to_crs(crs)
+    stream_network.plot(ax=ax, color=color, linewidth=linewidth, alpha=alpha)     
     
 def plot_basemap(ax: plt.Axes, crs: int=4269, source: cx.providers=cx.providers.OpenStreetMap.Mapnik, zoom: int=7):
     """Plots a contexily basemap"""
@@ -471,4 +476,14 @@ def plot_huc4(ax, shapefile, codes: list=[], crs: int=4269, edgecolor: str='roya
         shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)       
     else:
         shapefile = shapefile[shapefile['huc4_code'].isin(codes)]
-        shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth) 
+        shapefile.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, alpha=alpha, linewidth=linewidth)
+        
+def set_plot_bounds(shapefile, padding: float=3.0):
+    """Sets the plot bounds for single aquifer plotting"""
+    xmin, ymin, xmax, ymax = shapefile.total_bounds
+    padding = padding
+    xmin -= padding
+    ymin -= padding
+    xmax += padding
+    ymax += padding
+    return xmin, xmax, ymin, ymax 
