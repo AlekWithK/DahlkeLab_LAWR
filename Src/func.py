@@ -65,7 +65,7 @@ FLOW_METRIC_UNITS = {
 }
 
 # For use in pd.read_excel() to enforce leading 0's
-DATASET_DTYPES = {'site_no': str, 'huc2_code': str, 'huc4_code': str}
+DATASET_DTYPES = {'site_no': str, 'huc2_code': str, 'huc4_code': str, 'within_aq': str}
 
 #--------------------------------------#
 #-------# CALCULATION FUNCTIONS #------#
