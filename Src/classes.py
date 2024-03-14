@@ -109,17 +109,17 @@ pennsylvanian_aquifer = Aquifer(
 
 # List of all aquifers for easy iteration
 ALL_AQUIFERS = [
-    upper_clairborne_aquifer,
-    central_valley_aquifer,
-    columbia_plateau_aquifer,
-    high_plains_aquifer,
     arizona_alluvial_aquifer,
-    snake_river_aquifer,
+    central_valley_aquifer,
     coastal_lowlands_aquifer,
+    columbia_plateau_aquifer,
     edwards_trinity_aquifer,
     floridian_aquifer,
+    high_plains_aquifer,
+    pennsylvanian_aquifer,
+    snake_river_aquifer,
     texas_gulf_coast_aquifer,
-    upper_colorado_aquifer,
-    pennsylvanian_aquifer
+    upper_clairborne_aquifer,
+    upper_colorado_aquifer
 ]
     
