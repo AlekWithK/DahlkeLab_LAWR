@@ -1,5 +1,5 @@
 # A quick one-time use script to process all downloaded HUC4 zipfiles, extracting the 4 required WBDHU4 files
-# to a new folder. This script is not necessary for future use as the WBDHU4 files are already available on my GitHub
+# to a new folder.
 
 
 def huc4_processor():    

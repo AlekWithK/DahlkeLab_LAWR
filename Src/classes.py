@@ -116,7 +116,7 @@ ALL_AQUIFERS = [
     edwards_trinity_aquifer,
     floridian_aquifer,
     high_plains_aquifer,
-    pennsylvanian_aquifer,
+    #pennsylvanian_aquifer,
     snake_river_aquifer,
     texas_gulf_coast_aquifer,
     upper_clairborne_aquifer,
