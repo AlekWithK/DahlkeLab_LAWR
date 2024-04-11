@@ -415,11 +415,11 @@ def single_site_report(df_single_site: pd.DataFrame):
 #-------# PLOTTING FUNCTIONS #------#
 #-----------------------------------#
 
-def plot_lower_48(ax: plt.Axes, crs: int=4269, facecolor: str='grey', edgecolor: str='darkgrey', linewidth: float=0.75, zorder: int=1):
+def plot_lower_48(ax: plt.Axes, crs: int=4269, facecolor: str='grey', edgecolor: str='darkgrey', linewidth: float=0.75, alpha: float=1.0, zorder: int=1):
     """Plots a simple basemap of the lower 48 with state boundaries"""
     lower48 = gpd.read_file('ShapeFiles/Lower48/lower48.shp')        
     lower48 = lower48.to_crs(crs)
-    lower48.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, linewidth=linewidth, zorder=zorder) 
+    lower48.plot(ax=ax, edgecolor=edgecolor, facecolor=facecolor, linewidth=linewidth, alpha=alpha, zorder=zorder) 
     
 def plot_stream_network(stream_network_shapefile, ax: plt.Axes, crs: int=4269, color: str='blue', linewidth: float=0.75, alpha: float=0.30, zorder: int=1):
     """Plots a nationwide stream network"""
