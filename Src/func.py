@@ -184,7 +184,7 @@ def calc_inter_annual(df: pd.DataFrame, hmf_years: int):
     df_inter['datetime'] = df_inter['datetime'] + pd.DateOffset(months=-9)
     delta = df_inter['datetime'].dt.year.nunique()
     inter_annual = hmf_years / delta
-    inter_annual = min(int(round(inter_annual, 5) * 100), 100)
+    inter_annual = min((round(inter_annual, 5) * 100), 100)
     return inter_annual, delta
 
 def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
