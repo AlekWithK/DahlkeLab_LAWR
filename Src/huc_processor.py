@@ -93,6 +93,4 @@ if __name__ == '__main__':
         huc2_processor()       
     else:
         print('Usage: python huc_processor.py <huc4 | huc2>')
-        sys.exit(1)
-    
-    
+        sys.exit(1)    
