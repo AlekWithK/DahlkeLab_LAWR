@@ -325,7 +325,7 @@ def calc_timing(df: pd.DataFrame):
     com_series = df[df['cumsum'] >= df['t_sum'] / 2].groupby('year')['day'].first()
     timing = com_series.mean() 
     
-    return timing
+    return timing, com_series
     
 def convert_cubic_ft_hm(value: float):
     """Convert ft^3 to km^3"""
@@ -361,12 +361,20 @@ def gages_2_filtering(df: pd.DataFrame):
 #-------# MISC FUNCTIONS #------#
 #-------------------------------#
 
-def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame, aq_name: str):
+def merge_mk_results(df_mk_complete: pd.DataFrame, df_mk_metric: pd.DataFrame, site_no: str, date_range: float, quantile: float):
+    """Merges the per date/quantile site Mann-Kendall results with the others for splitting into datasets"""
+    df_mk_metric.insert(0, 'dataset_ID', date_range * quantile)
+    df_mk_metric.insert(1, 'site_no', site_no)    
+    return pd.concat([df_mk_complete.reset_index(drop=True), df_mk_metric.reset_index(drop=True)], axis=0)
+
+def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_mk_duration: pd.DataFrame, df_mk_intra_annual: pd.DataFrame,
+              df_mk_event_mag: pd.DataFrame, df_mk_event_dur: pd.DataFrame, df_mk_timing: pd.DataFrame, aq_name: str):
     """Splits the resulting 'aquifer_sites' dataframe into individual frames and saves them as CSV's into Prelim_Data"""
     
-    dataframes = [df_site_metrics, df_mk_magnitude, df_mk_duration, df_mk_intra_annual]
-    sheet_names = ['site_metrics', 'mk_magnitude', 'mk_duration', 'mk_intra_annual']
-    step = len(QUANTILE_LIST) * len(DATA_RANGE_LIST)
+    dataframes = [df_site_metrics, df_mk_magnitude, df_mk_duration, df_mk_intra_annual, df_mk_event_mag, df_mk_event_dur, df_mk_timing]
+    sheet_names = ['site_metrics', 'mk_magnitude', 'mk_duration', 'mk_intra_annual', 'mk_event_mag', 'mk_event_dur', 'mk_timing']
+    step = len(dataframes)
+    passes = len(QUANTILE_LIST) * len(DATA_RANGE_LIST)
     
     # Creating lists of each of the 4 (2 date range x 2 quantile) dataframes based on ID     
     df_master_list = []
@@ -380,12 +388,12 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
             df_master_list.append(df_l)
             
     # Reordering df_master_list so that dataframes are grouped by spreadsheet they're a member of
-    order_key = [i + j for j in range(step) for i in range(0, len(df_master_list), step)]
+    order_key = [i + j for j in range(passes) for i in range(0, len(df_master_list), passes)]
     df_master_list = [df_master_list[i] for i in order_key]        
     
     # Step through the master list, adding the first 4 dataframes to the first spreadsheet, the second four to the second, and so on        
     for i, df in enumerate(df_master_list):
-        if i // step == 0: # First 4 dataframes
+        if i // step == 0: # First 7 dataframes
             path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[0]}_{int(QUANTILE_LIST[0] * 100)}.xlsx'
             if os.path.exists(path):               
                 with pd.ExcelWriter(path, mode='a') as writer:
@@ -394,7 +402,7 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
                 with pd.ExcelWriter(path) as writer:
                     df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)
                                         
-        elif i // step == 1: # 5-8
+        elif i // step == 1:
             path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[0]}_{int(QUANTILE_LIST[1] * 100)}.xlsx'
             if os.path.exists(path):               
                 with pd.ExcelWriter(path, mode='a') as writer:
@@ -403,7 +411,7 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
                 with pd.ExcelWriter(path) as writer:
                     df.to_excel(writer, sheet_name=sheet_names[i % step], index=False)  
                     
-        elif i // step == 2: # 9-12
+        elif i // step == 2:
             path = f'Prelim_Data/{aq_name}_{DATA_RANGE_LIST[1]}_{int(QUANTILE_LIST[0] * 100)}.xlsx'
             if os.path.exists(path):               
                 with pd.ExcelWriter(path, mode='a') as writer:
@@ -423,13 +431,11 @@ def save_data(df_site_metrics: pd.DataFrame, df_mk_magnitude: pd.DataFrame, df_m
 
 
 def save_plot_as_image(img_path: str, overwrite: bool=False):
-    """Saves a generated plot as an image to the specified img_path"""
-    
+    """Saves a generated plot as an image to the specified img_path"""    
     if os.path.exists(img_path) and overwrite:
         plt.savefig(img_path)
     elif not os.path.exists(img_path):
-        plt.savefig(img_path)
-        
+        plt.savefig(img_path)        
 
 def single_site_report(df_single_site: pd.DataFrame):
     """Produces console report for single_site_data()"""
