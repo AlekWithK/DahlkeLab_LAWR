@@ -1,0 +1,144 @@
+[---Working on AL---]
+Total Sites: 177 in the state of AL
+Ignored 30 sites (16.95%)
+[---Working on AZ---]
+Total Sites: 218 in the state of AZ
+Ignored 9 sites (4.13%)
+[---Working on AR---]
+Total Sites: 139 in the state of AR
+Ignored 12 sites (8.63%)
+[---Working on CA---]
+Total Sites: 484 in the state of CA
+Ignored 25 sites (5.17%)
+[---Working on CO---]
+Total Sites: 348 in the state of CO
+Ignored 14 sites (4.02%)
+[---Working on CT---]
+Total Sites: 75 in the state of CT
+Ignored 4 sites (5.33%)
+[---Working on DE---]
+Total Sites: 36 in the state of DE
+Ignored 2 sites (5.56%)
+[---Working on FL---]
+Total Sites: 436 in the state of FL
+Ignored 9 sites (2.06%)
+[---Working on GA---]
+Total Sites: 308 in the state of GA
+Ignored 5 sites (1.62%)
+[---Working on ID---]
+Total Sites: 231 in the state of ID
+Ignored 9 sites (3.9%)
+[---Working on IL---]
+Total Sites: 193 in the state of IL
+Ignored 4 sites (2.07%)
+[---Working on IN---]
+Total Sites: 207 in the state of IN
+Ignored 16 sites (7.73%)
+[---Working on IA---]
+Total Sites: 143 in the state of IA
+Ignored 6 sites (4.2%)
+[---Working on KS---]
+Total Sites: 195 in the state of KS
+Ignored 5 sites (2.56%)
+[---Working on KY---]
+Total Sites: 172 in the state of KY
+Ignored 9 sites (5.23%)
+[---Working on LA---]
+Total Sites: 102 in the state of LA
+Ignored 25 sites (24.51%)
+[---Working on ME---]
+Total Sites: 70 in the state of ME
+Ignored 1 sites (1.43%)
+[---Working on MD---]
+Total Sites: 190 in the state of MD
+Ignored 7 sites (3.68%)
+[---Working on MA---]
+Total Sites: 144 in the state of MA
+Ignored 11 sites (7.64%)
+[---Working on MI---]
+Total Sites: 203 in the state of MI
+Ignored 20 sites (9.85%)
+[---Working on MN---]
+Total Sites: 130 in the state of MN
+Ignored 4 sites (3.08%)
+[---Working on MS---]
+Total Sites: 99 in the state of MS
+Ignored 13 sites (13.13%)
+[---Working on MO---]
+Total Sites: 244 in the state of MO
+Ignored 2 sites (0.82%)
+[---Working on MT---]
+Total Sites: 227 in the state of MT
+Ignored 7 sites (3.08%)
+[---Working on NE---]
+Total Sites: 120 in the state of NE
+Ignored 1 sites (0.83%)
+[---Working on NV---]
+Total Sites: 191 in the state of NV
+Ignored 10 sites (5.24%)
+[---Working on NH---]
+Total Sites: 102 in the state of NH
+Ignored 2 sites (1.96%)
+[---Working on NJ---]
+Total Sites: 141 in the state of NJ
+Ignored 6 sites (4.26%)
+[---Working on NM---]
+Total Sites: 174 in the state of NM
+Ignored 8 sites (4.6%)
+[---Working on NY---]
+Total Sites: 320 in the state of NY
+Ignored 15 sites (4.69%)
+[---Working on NC---]
+Total Sites: 241 in the state of NC
+Ignored 10 sites (4.15%)
+[---Working on ND---]
+Total Sites: 122 in the state of ND
+Ignored 7 sites (5.74%)
+[---Working on OH---]
+Total Sites: 224 in the state of OH
+Ignored 15 sites (6.7%)
+[---Working on OK---]
+Total Sites: 179 in the state of OK
+Ignored 9 sites (5.03%)
+[---Working on OR---]
+Total Sites: 214 in the state of OR
+Ignored 8 sites (3.74%)
+[---Working on PA---]
+Total Sites: 311 in the state of PA
+Ignored 6 sites (1.93%)
+[---Working on RI---]
+Total Sites: 34 in the state of RI
+Ignored 1 sites (2.94%)
+[---Working on SC---]
+Total Sites: 131 in the state of SC
+Ignored 9 sites (6.87%)
+[---Working on SD---]
+Total Sites: 122 in the state of SD
+Ignored 3 sites (2.46%)
+[---Working on TN---]
+Total Sites: 136 in the state of TN
+Ignored 13 sites (9.56%)
+[---Working on TX---]
+Total Sites: 601 in the state of TX
+Ignored 48 sites (7.99%)
+[---Working on UT---]
+Total Sites: 154 in the state of UT
+Ignored 4 sites (2.6%)
+[---Working on VT---]
+Total Sites: 99 in the state of VT
+Ignored 2 sites (2.02%)
+[---Working on VA---]
+Total Sites: 201 in the state of VA
+Ignored 7 sites (3.48%)
+[---Working on WA---]
+Total Sites: 266 in the state of WA
+Ignored 11 sites (4.14%)
+[---Working on WV---]
+Total Sites: 110 in the state of WV
+Ignored 2 sites (1.82%)
+[---Working on WI---]
+Total Sites: 225 in the state of WI
+Ignored 29 sites (12.89%)
+[---Working on WY---]
+Total Sites: 121 in the state of WY
+Ignored 5 sites (4.13%)
