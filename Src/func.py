@@ -100,6 +100,47 @@ FLOW_METRIC_UNITS = {
     'intra_annual': 'Average Events per Year'
 }
 
+WATER_QUALITY_PCODES = {
+    'p00090': 'Oxidation Reduction Potential (mV)',
+    'p00300': 'Dissolved Oxygen (mg/l)',
+    'p00301': 'Dissolved Oxygen (% saturation)',
+    'p63737': 'Dissolved Organic Carbon (% hydrophilic fraction of organic C)',
+    'p63738': 'Dissolved Organic Carbon (% hydrophobic fraction of organic C)',
+    'p01044': 'Iron (ug/l), Suspended Sediment',
+    'p01045': 'Iron (ug/l), Recoverable',
+    'p01055': 'Manganese (ug/l), Recoverable',
+    'p01123': 'Mangenese (ug/l), Recoverable',
+    'p50060': 'Chlorine (mg/l), Total Residual',
+    'p50064': 'Chlorine (mg/l), Free Available',
+    'p50064': 'Chlorine (mg/l), Combined Available',
+    'p00946': 'Sulfate (mg/l)',
+    'p00620': 'Nitrate (mg/l)',
+    'p00650': 'Phosphate (mg/l as PO4)',
+    'p00653': 'Phosphate (mg/l as PO4)',
+    'p00425': 'Bicarbonate (mg/l as CaCO3)',
+    'p00916': 'Calcium (mg/l)',
+    'p00918': 'Calcium (mg/l)',
+    'p00920': 'Magnesium (mg/l as CaCO3?)',
+    'p00921': 'Magnesium (mg/l), Recoverable',
+    'p00927': 'Magnesium (mg/l), Recoverable',
+    'p00923': 'Sodium (mg/l), Recoverable',
+    'p00929': 'Sodium (mg/l), Recoverable',
+    'p00937': 'Potassium (mg/l), Recoverable',
+    'p00939': 'Potassium (mg/l), Recoverable',
+    'p00954': 'Silica (mg/l as SiO2), Recoverable',
+    'p00956': 'Silica (mg/l as SiO2)',
+    'p00418': 'Alkalinity (mg/l as CaCO3), Fixed Endpoint (pH 4.5), Field',
+    'p00421': 'Alkalinity (mg/l as CaCO3), Fixed Endpoint (pH 4.5), Lab',
+    'p29801': 'Alkalinity (mg/l as CaCO3), Fixed Endpoint (pH 4.5), Lab',
+    'p00434': 'pH (standard units), 25C',
+    'p00010': 'Temperature (C)',
+    'p00011': 'Temperature (F)',
+    'p00070': 'Turbidity (JTU)',
+    'p00075': 'Turbidity (mg/l as SiO2), Hellige Turbidimeter',
+    'p61028': 'Turbidity (NTU)',
+    'p72395': 'Turbidity (FNU), Mean Storm Event Composite Samples',
+}
+
 # For use in pd.read_excel() to enforce leading 0's
 DATASET_DTYPES = {'site_no': str, 'huc2_code': str, 'huc4_code': str, 'within_aq': str}
 
