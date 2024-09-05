@@ -1,0 +1,144 @@
+[---Working on AL---]
+Total Sites: 173 in the state of AL
+Ignored 35 sites (20.23%)
+[---Working on AZ---]
+Total Sites: 218 in the state of AZ
+Ignored 11 sites (5.05%)
+[---Working on AR---]
+Total Sites: 139 in the state of AR
+Ignored 16 sites (11.51%)
+[---Working on CA---]
+Total Sites: 481 in the state of CA
+Ignored 54 sites (11.23%)
+[---Working on CO---]
+Total Sites: 349 in the state of CO
+Ignored 14 sites (4.01%)
+[---Working on CT---]
+Total Sites: 74 in the state of CT
+Ignored 4 sites (5.41%)
+[---Working on DE---]
+Total Sites: 36 in the state of DE
+Ignored 3 sites (8.33%)
+[---Working on FL---]
+Total Sites: 434 in the state of FL
+Ignored 39 sites (8.99%)
+[---Working on GA---]
+Total Sites: 308 in the state of GA
+Ignored 17 sites (5.52%)
+[---Working on ID---]
+Total Sites: 229 in the state of ID
+Ignored 9 sites (3.93%)
+[---Working on IL---]
+Total Sites: 193 in the state of IL
+Ignored 7 sites (3.63%)
+[---Working on IN---]
+Total Sites: 205 in the state of IN
+Ignored 20 sites (9.76%)
+[---Working on IA---]
+Total Sites: 143 in the state of IA
+Ignored 7 sites (4.9%)
+[---Working on KS---]
+Total Sites: 195 in the state of KS
+Ignored 5 sites (2.56%)
+[---Working on KY---]
+Total Sites: 169 in the state of KY
+Ignored 8 sites (4.73%)
+[---Working on LA---]
+Total Sites: 97 in the state of LA
+Ignored 26 sites (26.8%)
+[---Working on ME---]
+Total Sites: 68 in the state of ME
+Ignored 0 sites (0.0%)
+[---Working on MD---]
+Total Sites: 190 in the state of MD
+Ignored 8 sites (4.21%)
+[---Working on MA---]
+Total Sites: 146 in the state of MA
+Ignored 15 sites (10.27%)
+[---Working on MI---]
+Total Sites: 197 in the state of MI
+Ignored 16 sites (8.12%)
+[---Working on MN---]
+Total Sites: 130 in the state of MN
+Ignored 7 sites (5.38%)
+[---Working on MS---]
+Total Sites: 99 in the state of MS
+Ignored 16 sites (16.16%)
+[---Working on MO---]
+Total Sites: 244 in the state of MO
+Ignored 2 sites (0.82%)
+[---Working on MT---]
+Total Sites: 225 in the state of MT
+Ignored 7 sites (3.11%)
+[---Working on NE---]
+Total Sites: 120 in the state of NE
+Ignored 1 sites (0.83%)
+[---Working on NV---]
+Total Sites: 185 in the state of NV
+Ignored 9 sites (4.86%)
+[---Working on NH---]
+Total Sites: 101 in the state of NH
+Ignored 2 sites (1.98%)
+[---Working on NJ---]
+Total Sites: 141 in the state of NJ
+Ignored 10 sites (7.09%)
+[---Working on NM---]
+Total Sites: 174 in the state of NM
+Ignored 10 sites (5.75%)
+[---Working on NY---]
+Total Sites: 321 in the state of NY
+Ignored 16 sites (4.98%)
+[---Working on NC---]
+Total Sites: 240 in the state of NC
+Ignored 10 sites (4.17%)
+[---Working on ND---]
+Total Sites: 123 in the state of ND
+Ignored 9 sites (7.32%)
+[---Working on OH---]
+Total Sites: 221 in the state of OH
+Ignored 15 sites (6.79%)
+[---Working on OK---]
+Total Sites: 178 in the state of OK
+Ignored 9 sites (5.06%)
+[---Working on OR---]
+Total Sites: 213 in the state of OR
+Ignored 7 sites (3.29%)
+[---Working on PA---]
+Total Sites: 311 in the state of PA
+Ignored 6 sites (1.93%)
+[---Working on RI---]
+Total Sites: 34 in the state of RI
+Ignored 2 sites (5.88%)
+[---Working on SC---]
+Total Sites: 131 in the state of SC
+Ignored 12 sites (9.16%)
+[---Working on SD---]
+Total Sites: 122 in the state of SD
+Ignored 4 sites (3.28%)
+[---Working on TN---]
+Total Sites: 136 in the state of TN
+Ignored 15 sites (11.03%)
+[---Working on TX---]
+Total Sites: 597 in the state of TX
+Ignored 64 sites (10.72%)
+[---Working on UT---]
+Total Sites: 153 in the state of UT
+Ignored 4 sites (2.61%)
+[---Working on VT---]
+Total Sites: 98 in the state of VT
+Ignored 2 sites (2.04%)
+[---Working on VA---]
+Total Sites: 200 in the state of VA
+Ignored 8 sites (4.0%)
+[---Working on WA---]
+Total Sites: 265 in the state of WA
+Ignored 11 sites (4.15%)
+[---Working on WV---]
+Total Sites: 110 in the state of WV
+Ignored 2 sites (1.82%)
+[---Working on WI---]
+Total Sites: 220 in the state of WI
+Ignored 31 sites (14.09%)
+[---Working on WY---]
+Total Sites: 116 in the state of WY
+Ignored 1 sites (0.86%)
