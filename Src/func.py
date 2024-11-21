@@ -20,7 +20,7 @@ from itertools import chain
 
 # Data Retrieval Tool Constants
 SERVICE = 'dv'
-STATE_CODE = 'CA'
+STATE_CODE = 'ME'
 PARAM_CODE = '00060'
 TIDAL_CODE = '72137'
 DEFAULT_START = '1900-10-01'
@@ -41,7 +41,7 @@ MK_TREND_ALPHA = 0.05
 
 # Miscellaneous Constants
 HYDRO_YEAR = 'AS-OCT'
-SORT_BY_WB = True
+SORT_BY_WB = False
 
 # Site ID URI
 SITES_URI = f'https://waterdata.usgs.gov/{STATE_CODE}/nwis/current?index_pmcode_STATION_NM=1&index_pmcode_DATETIME=2&index_pmcode_{PARAM_CODE}=3&group_key=NONE&format=sitefile_output&sitefile_output_format=rdb&column_name=site_no&column_name=station_nm&column_name=dec_lat_va&column_name=dec_long_va&column_name=sv_begin_date&column_name=sv_end_date&sort_key_2=site_no&html_table_group_key=NONE&rdb_compression=file&list_of_search_criteria=realtime_parameter_selection'
@@ -387,10 +387,15 @@ def calc_duration_intra_annual(df: pd.DataFrame, hmf_years: int):
     
     # Annual, Event, and Intra-annual calculations
     df_results = df_results.fillna(0)
-    annual_duration = df_results['total_days'].sum() / hmf_years    
-    event_duration = df_results['duration'].sum() / hmf_years
-    intra_annual = df_results['total_events'].sum() / hmf_years
-    event_hmf = df_results['event_hmf'].sum() / hmf_years
+    # annual_duration = df_results['total_days'].sum() / hmf_years    
+    # event_duration = df_results['duration'].sum() / hmf_years
+    # intra_annual = df_results['total_events'].sum() / hmf_years
+    # event_hmf = df_results['event_hmf'].sum() / hmf_years
+    
+    annual_duration = df_results['total_days'].median()   
+    event_duration = df_results['duration'].median()
+    intra_annual = df_results['total_events'].median()
+    event_hmf = df_results['event_hmf'].median()
     
     return event_duration, annual_duration, intra_annual, event_hmf, df_results
 
@@ -438,7 +443,8 @@ def calc_timing(df: pd.DataFrame):
     df['t_sum'] = df.groupby('year')['00060_Mean'].transform('sum')
 
     com_series = df[df['cumsum'] >= df['t_sum'] / 2].groupby('year')['day'].first()
-    timing = com_series.mean() 
+    #timing = com_series.mean() 
+    timing = com_series.median()
     
     return timing, com_series
     
